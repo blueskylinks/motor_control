@@ -12,6 +12,7 @@ const int ut_sensor = D2;
 const int buzzer = D8;
 const int ot_status = D4;
 const int ut_status = D7;
+const int auto_empty_status = D6;
 const int auto_status = D5;
 const int input1 = D9;
 int ot_sensorstatus=1;
@@ -44,6 +45,7 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(ot_status, OUTPUT);
   pinMode(ut_status, OUTPUT);
+  pinMode(auto_empty_status, INPUT_PULLUP);
   pinMode(ot_sensor, INPUT_PULLUP);
   pinMode(ut_sensor, INPUT_PULLUP);
   pinMode(auto_status, INPUT_PULLUP);
@@ -144,7 +146,7 @@ void loop() {
     Serial.println(ut_sensorcount);
     Serial.println("Tank Empty");
     digitalWrite(ut_status,HIGH);
-    if(ut_sensorcount>=20){
+    if(ut_sensorcount>=20 && digitalRead(auto_empty_status)==0){
       if(digitalRead(buzzer)!=1){
          Serial.println("Water tank is still empty, turn on the Motor");
          motor_time=(motor_duration*60)*10;
