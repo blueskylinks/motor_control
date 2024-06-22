@@ -145,12 +145,12 @@ void loop() {
     Serial.println(ut_sensorcount);
     Serial.println("Tank Empty");
     digitalWrite(ut_status,HIGH);
-    if(ut_sensorcount>=20){
-      if(digitalRead(buzzer)!=1){
-         Serial.println("Water tank is still empty, turn on the Motor");
+    if(ut_sensorcount>=10){
+      if(digitalRead(buzzer)==1){
+         Serial.println("Alert!!!! Dry Run..., turn off the Motor");
          motor_time=(motor_duration*60)*10;
-         digitalWrite(buzzer, HIGH);
-         motor_status=1;
+         digitalWrite(buzzer, LOW);
+         motor_status=0;
       }
       ut_sensorcount=0;
     }
