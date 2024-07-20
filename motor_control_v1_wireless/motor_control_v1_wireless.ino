@@ -7,16 +7,9 @@ int value2 = 2;
 byte memval1;
 byte memval2;
 
-const int ot_sensor = D1;
-const int ut_sensor = D2;
 const int buzzer = D8;
-const int ot_status = D4;
-const int ut_status = D7;
 const int auto_status = D5;
 const int input1 = D9;
-int ot_sensorstatus=1;
-int ut_sensorstatus=1;
-int error_sensorstatus=1;
 int ot_sensorcount=0;
 int ut_sensorcount=0;
 
@@ -42,10 +35,6 @@ void setup() {
   EEPROM.begin(512);
   pinMode(input1, INPUT_PULLUP);  
   pinMode(buzzer, OUTPUT);
-  pinMode(ot_status, OUTPUT);
-  pinMode(ut_status, OUTPUT);
-  pinMode(ot_sensor, INPUT_PULLUP);
-  pinMode(ut_sensor, INPUT_PULLUP);
   pinMode(auto_status, INPUT_PULLUP);
   digitalWrite(buzzer, LOW);
   
@@ -126,39 +115,19 @@ void loop() {
   Serial.println(motor_status);
   Serial.print("Motor Duration:");
   Serial.println(motor_duration);
-  ot_sensorstatus=digitalRead(ot_sensor);
-  ut_sensorstatus=digitalRead(ut_sensor);
   Serial.print("Motor Time:");
   Serial.println(motor_time); 
   Serial.print("HighWater Tank Status:");
-  Serial.println(ot_sensorstatus);
+  //Serial.println(ot_sensorstatus);
   Serial.print("LowWater Status:");
-  Serial.println(ut_sensorstatus);
-  
+  //Serial.println(ut_sensorstatus);
+
+  /*
   if(ot_sensorstatus==0){
     digitalWrite(ot_status,HIGH);
   }else{
     digitalWrite(ot_status,LOW);
-  }
-
-  if(ut_sensorstatus==0){
-    Serial.println(ut_sensorcount);
-    Serial.println("Tank Empty");
-    digitalWrite(ut_status,HIGH);
-    if(ut_sensorcount>=20){
-      if(digitalRead(buzzer)!=1){
-         Serial.println("Water tank is still empty, turn on the Motor");
-         motor_time=(motor_duration*60)*10;
-         digitalWrite(buzzer, HIGH);
-         motor_status=1;
-      }
-      ut_sensorcount=0;
-    }
-   ut_sensorcount=ut_sensorcount+1;
-  }else{
-    ut_sensorcount=0;
-    digitalWrite(ut_status,LOW);
-  }
+  } */
   
   if(digitalRead(input1)==0){
     Serial.println("Button Clicked...!");
@@ -182,8 +151,7 @@ void loop() {
   if(digitalRead(buzzer)==1){
    motor_time=motor_time-1;
    Serial.println("Motor Running..!");
-   if(motor_time<=0 || ot_sensorstatus==0 || error_sensorstatus==0){
-
+   if(motor_time<=0){
     Serial.print("Sensor Count:");
     Serial.println(ot_sensorcount);
     Serial.println("Tank Full or Timed Out..!");
