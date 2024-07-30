@@ -1,5 +1,8 @@
 package com.skyiot.myapplication_ll
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,7 +26,9 @@ import com.skyiot.myapplication_ll.ui.theme.Shapes
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Newaccount(){
+fun Newaccount(text: String = "Continue with Google",
+               loadingText: String = "Wait a moment..."
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -124,14 +129,32 @@ fun Newaccount(){
                     .fillMaxWidth(0.8f)
                     .background(color = Color.LightGray)
                     .fillMaxHeight(0.2f)
-                    .clickable { },
+                    .clickable { }
+                    .animateContentSize(animationSpec = tween(
+                        durationMillis = 300,
+                        easing = LinearOutSlowInEasing
+                    )
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
                 Icon(painter = painterResource(id = R.drawable.ggg),
-                    contentDescription = "google img", tint = Color.Unspecified)
-                Text(text = "Continue with google", color = Color.White)
+                    contentDescription = "google img",
+                    tint = Color.Unspecified
+                )
+                Text(text = if (clicked) loadingText else text, color = Color.White)
+                if (clicked) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .width(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colors.primary
+                    )
+                }
             }
         }
+
         Spacer(modifier = Modifier.height(36.dp))
 
         Row() {

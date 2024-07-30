@@ -1,6 +1,9 @@
 package com.skyiot.myapplication_ll
 
 import android.content.Context
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,7 +26,9 @@ import com.skyiot.myapplication_ll.ui.theme.Shapes
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Mobilescreen() {
+fun Mobilescreen(text: String = "Continue with Google",
+                 loadingText: String = "Wait a moment..."
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -39,9 +44,9 @@ fun Mobilescreen() {
 
         val passwordVisibility = remember { mutableStateOf(false) }
 
-        Image(painter = painterResource(id = R.drawable.bileimg),
+        Image(painter = painterResource(id = R.drawable.skyy),
             contentDescription = "login image",
-            modifier = Modifier.size(250.dp))
+            modifier = Modifier.size(230.dp))
 
         Text(text = "Login", fontSize = 30.sp, fontWeight= FontWeight.Bold,)
 
@@ -117,18 +122,35 @@ fun Mobilescreen() {
         border = BorderStroke(width = 1.dp, color = Color.LightGray),
         color = MaterialTheme.colors.surface
         ) {
-           Row(
-               modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .background(color = Color.LightGray)
-                       .fillMaxHeight(0.4f)
-                       .clickable { },
-               verticalAlignment = Alignment.CenterVertically,
-               horizontalArrangement = Arrangement.Center) {
-               Icon(painter = painterResource(id = R.drawable.ggg),
-                   contentDescription ="google img", tint = Color.Unspecified )
-               Text(text = "Continue with google", color = Color.White)
-           } 
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .background(color = Color.LightGray)
+                    .fillMaxHeight(0.3f)
+                    .clickable { }
+                    .animateContentSize(animationSpec = tween(
+                        durationMillis = 300,
+                        easing = LinearOutSlowInEasing
+                    )
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center) {
+                Icon(painter = painterResource(id = R.drawable.ggg),
+                    contentDescription = "google img",
+                    tint = Color.Unspecified
+                )
+                Text(text = if (clicked) loadingText else text, color = Color.White)
+                if (clicked) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .width(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colors.primary
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))

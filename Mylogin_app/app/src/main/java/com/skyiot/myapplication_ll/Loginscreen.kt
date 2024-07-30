@@ -1,5 +1,8 @@
 package com.skyiot.myapplication_ll
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -23,7 +26,10 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Loginscreen() {
+fun Loginscreen(
+    text: String = "Continue with Google",
+    loadingText: String = "Wait a moment..."
+) {
     Column(
         modifier = Modifier.fillMaxSize()
             .padding(10.dp),
@@ -37,9 +43,9 @@ fun Loginscreen() {
 
         val passwordVisibility = remember { mutableStateOf(false) }
 
-        Image(painter = painterResource(id = R.drawable.loginimg),
+        Image(painter = painterResource(id = R.drawable.skyy),
             contentDescription = "login image",
-            modifier = Modifier.size(250.dp))
+            modifier = Modifier.size(220.dp))
 
         Text(text = "Login", fontSize = 30.sp, fontWeight= FontWeight.Bold,)
 
@@ -123,13 +129,30 @@ fun Loginscreen() {
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .background(color = Color.LightGray)
-                    .fillMaxHeight(0.4f)
-                    .clickable { },
+                    .fillMaxHeight(0.3f)
+                    .clickable { }
+                    .animateContentSize(animationSpec = tween(
+                        durationMillis = 300,
+                        easing = LinearOutSlowInEasing
+                    )
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
                 Icon(painter = painterResource(id = R.drawable.ggg),
-                    contentDescription ="google img", tint = Color.Unspecified )
-                Text(text = "Continue with google", color = Color.White)
+                    contentDescription = "google img",
+                    tint = Color.Unspecified
+                )
+                Text(text = if (clicked) loadingText else text, color = Color.White)
+                if (clicked) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .width(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colors.primary
+                    )
+                }
             }
         }
 
