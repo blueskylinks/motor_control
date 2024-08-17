@@ -33,9 +33,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent{
-                    Loginscreen()
-                   // Mobilescreen()
-                     //Newaccount()
+                    Loginscreen(this)
+                    //Mobilescreen(this)
+                    // Newaccount(this)
                      //OTPScreen()
                 }
             }

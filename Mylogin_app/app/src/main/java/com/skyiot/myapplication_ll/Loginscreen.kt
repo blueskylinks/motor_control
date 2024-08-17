@@ -1,5 +1,8 @@
 package com.skyiot.myapplication_ll
 
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -26,7 +29,7 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun Loginscreen(
+fun Loginscreen(context: Context,
     text: String = "Continue with Google",
     loadingText: String = "Wait a moment..."
 ) {
@@ -70,6 +73,12 @@ fun Loginscreen(
             label = { Text(text = "Email",fontWeight= FontWeight.Bold, fontFamily = FontFamily.SansSerif) },
             placeholder = { Text(text = "email@gmail.com") },
             singleLine = true,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_email_24),
+                    contentDescription = null,
+                )
+            },
             modifier = Modifier.fillMaxWidth(0.8f)
         )
 
@@ -82,6 +91,12 @@ fun Loginscreen(
                 fontWeight= FontWeight.Bold, fontFamily = FontFamily.SansSerif) },
             placeholder = { Text(text = "Password") },
             singleLine = true,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_lock_24),
+                    contentDescription = null,
+                )
+            },
             modifier = Modifier.fillMaxWidth(0.8f),
             trailingIcon = {
                 IconButton(onClick = {
@@ -99,26 +114,39 @@ fun Loginscreen(
         Spacer(modifier = Modifier.height(2.dp))
 
         Text(text = "Forgot password !",
-            color = Color.Blue,fontSize = 16.sp, textAlign = TextAlign.Start,
+            color = Color.Blue,fontSize = 16.sp,
+            textAlign = TextAlign.Start,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .padding(14.dp))
 
         // Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = { }
+        Button(
+            onClick = {
+                if (userEmail.value.isEmpty()) {
+                    Toast.makeText(context, " Please Enter Email", Toast.LENGTH_SHORT).show()
+                } else if (userPassword.value.isEmpty()) {
+                    Toast.makeText(context, "Enter Password", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Validation Successfully Completed", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            },
+            shape = Shapes.medium,
         ) {
             Text(text = " login", modifier = Modifier.fillMaxWidth(0.8f),
                 fontSize = 20.sp, textAlign = TextAlign.Center)
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         //This is a google text
-        Text(text = "Or login with",color = Color.Black, fontSize = 14.sp,
+        Text(text = "Or login with",color = Color.Black, fontSize = 15.sp,
             fontWeight= FontWeight.Bold,
             modifier = Modifier.clickable{ })
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Surface ( onClick = {clicked = !clicked},
             shape = Shapes.medium,
@@ -158,9 +186,25 @@ fun Loginscreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(text = "Create a new Account",color = Color.Black, fontSize = 20.sp,
-            fontWeight= FontWeight.Bold,
-            modifier = Modifier.clickable{})
+        Row(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .wrapContentSize(align = Alignment.BottomCenter)) {
+
+            Text(text = "Don't have an account?",
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = "Sign Up",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                modifier = Modifier.clickable { },
+                color = MaterialTheme.colors.primary
+            )
+        }
     }
+
 }
 
