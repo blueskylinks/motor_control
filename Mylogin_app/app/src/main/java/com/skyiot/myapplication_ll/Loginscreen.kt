@@ -113,7 +113,7 @@ fun Loginscreen(
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-
+        //This is a google text
         Text(text = "Or login with",color = Color.Black, fontSize = 14.sp,
             fontWeight= FontWeight.Bold,
             modifier = Modifier.clickable{ })
