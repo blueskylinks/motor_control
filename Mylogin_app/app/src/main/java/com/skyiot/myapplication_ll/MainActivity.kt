@@ -34,9 +34,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent{
                     Loginscreen(this)
-                    //Mobilescreen(this)
+           //PinScreen()
+                  //MobileNumberScreen()
+                  //MobileNumberAndOtpInput()
                     // Newaccount(this)
-                     //OTPScreen()
+                   // OTPScreen()
                 }
             }
         }
@@ -115,6 +117,7 @@ fun OTPScreen() {
         }
     }
 }
+
 
 
 
