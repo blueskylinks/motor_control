@@ -14,16 +14,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-//import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Loginscreen(context: Context,
-    text: String = "Continue with Google",
-    loadingText: String = "Wait a moment..."
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(10.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,16 +50,16 @@ fun Loginscreen(context: Context,
             )
             {
                 Tab(selected = selectedTabIndex == 0, onClick = { selectedTabIndex = 0 }) {
-                    Text("Email Address", modifier = Modifier.padding(16.dp), color = Color.Black,fontWeight = FontWeight.Bold)
+                    Text("Mobile Number", modifier = Modifier.padding(16.dp), color = Color.Black,fontWeight = FontWeight.Bold)
                 }
                 Tab(selected = selectedTabIndex == 1, onClick = { selectedTabIndex = 1 }) {
-                    Text("Mobile Number", modifier = Modifier.padding(16.dp), color = Color.Black,fontWeight = FontWeight.Bold)
+                    Text("Email Address", modifier = Modifier.padding(16.dp), color = Color.Black,fontWeight = FontWeight.Bold)
                 }
             }
 
             when (selectedTabIndex) {
-                0 -> EmailInput(context)
-                1 -> MobileInput()
+                0 -> MobileInput()
+                1 -> EmailInput(context)
             }
         }
     }
