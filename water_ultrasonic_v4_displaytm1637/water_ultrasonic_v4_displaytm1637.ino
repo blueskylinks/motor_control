@@ -67,18 +67,18 @@ void setup() {
   delay(2000);
   memval1=EEPROM.read(addr1);
   motor_duration=memval1;
-  if(motor_duration<1 || motor_duration>180){
+  if(motor_duration<1 || motor_duration>90){
     motor_duration=30;
   }
   int temp_count=100;
   if(digitalRead(input1)==0){
     while(temp_count>=1){
       if(digitalRead(input1)==0){
-        if(motor_duration<=180){
-          motor_duration=motor_duration+1;
+        if(motor_duration<=90){
+          motor_duration=motor_duration+5;
           temp_count=temp_count+1;
         }else{
-          motor_duration=1;
+          motor_duration=0;
         } 
       }
       temp_count=temp_count-1;
@@ -286,7 +286,8 @@ void loop() {
     Serial.print("Motor Time:");
     Serial.println(motor_time);
     //display.setSegments(blank);
-    display.showNumberDec(1, false, 1, 0);  
+    display.showNumberDec(1, false, 1, 0);
+    display.showNumberDec((motor_time/60)+1,false);  
   }
   else{
     if(value_count<=0){

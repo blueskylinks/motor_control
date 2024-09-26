@@ -37,7 +37,7 @@ void setup() {
   pinMode(buzzer, OUTPUT);
   pinMode(auto_status, INPUT_PULLUP);
   digitalWrite(buzzer, LOW);
-  
+  int n9=digitalRead(9);
   delay(1000);
   memval1=EEPROM.read(addr1);
   motor_duration=memval1;
