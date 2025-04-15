@@ -1,0 +1,268 @@
+#include <EEPROM.h>
+#include <Arduino.h>
+#include <TM1637Display.h>
+#include <LoRa.h>
+#include <SPI.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+// Display Module connection pins (Digital Pins)
+#define CLK D3
+#define DIO D4
+
+#define ss D8
+#define rst D0
+#define dio0 D4
+
+int addr1 = 0;
+int addr2 = 1;
+int value1 = 1;
+int value2 = 2;
+byte memval1;
+byte memval2;
+
+const int ot_sensor = D1;
+const int ut_sensor = D1;
+const int buzzer = D2;
+const int input1 = D9;
+int ot_sensorstatus=1;
+int ut_sensorstatus=1;
+int error_sensorstatus=1;
+int ot_sensorcount=0;
+int ut_sensorcount=0;
+int lora_pac_count=0;
+
+int motor_status=0;
+int motor_status_manual=0;
+int motor_time=0;
+int empty_start=0;
+int value_count=0;
+int motor_duration=30;
+int motor_stoptime=0;
+int tank_size, len;
+int count=0;
+int sound=0;
+int sdevice[]={2,2,2,2,2};
+int cdevice[]={0,0,0,0,0};
+int cdstatus[]={0,0,0,0,0};
+int st=2;
+int minval=0;
+
+
+const uint8_t seg_empty[] = {
+  SEG_A | SEG_D | SEG_E | SEG_F | SEG_G,           
+  SEG_D,   
+  SEG_D,                           
+  SEG_D           
+  };
+
+const uint8_t seg_full[] = {
+  SEG_A | SEG_G | SEG_F | SEG_E,           
+  SEG_A | SEG_G | SEG_F | SEG_E,   
+  SEG_D,                           
+  SEG_D           
+  };
+
+LiquidCrystal_I2C lcd(0x27,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+void setup() {
+  Serial.begin(115200); // Starts the serial communication
+  EEPROM.begin(512);
+  Wire.begin(D4,D3);
+  lcd.init();
+  lcd.setCursor(0,0);
+  lcd.print("SkyIoT Control");
+  // Print a message to the LCD.
+  lcd.backlight();
+  pinMode(input1, INPUT_PULLUP);  
+  pinMode(buzzer, OUTPUT);
+  pinMode(ot_sensor, INPUT_PULLUP);
+  pinMode(ut_sensor, INPUT_PULLUP);
+  digitalWrite(buzzer, HIGH);
+  motor_status=1;  
+  delay(1000);
+  memval1=EEPROM.read(addr1);
+  motor_duration=memval1;
+
+  int temp_count=100;
+  if(digitalRead(input1)==0){
+    while(temp_count>=1){
+      if(digitalRead(input1)==0){
+        if(motor_duration<=180){
+          motor_duration=motor_duration+5;
+          temp_count=temp_count+1;
+        }else{
+          motor_duration=0;
+        } 
+      }
+      temp_count=temp_count-1;
+      delay(200);
+      Serial.print("Temp Count:");
+      Serial.println(temp_count);
+      Serial.print("Motor Duration:");
+      Serial.println(motor_duration);
+
+      EEPROM.write(addr1, motor_duration);
+      if (EEPROM.commit()) {
+      Serial.println("EEPROM successfully committed");
+      //display.showNumberDec(5, false, 1, 0);
+      //display.showNumberDec(motor_duration,false);
+      } else {
+      Serial.println("ERROR! EEPROM commit failed");
+      }      
+    }
+  }  
+
+  if(motor_duration<1 || motor_duration>180){
+    motor_duration=30;
+  }
+   
+  motor_time=motor_duration*60;
+  empty_start=0;
+
+  const uint8_t seg_duration[] = {
+  SEG_A | SEG_B | SEG_E | SEG_F | SEG_G,           
+  SEG_D,   
+  SEG_D,                           
+  SEG_D           
+  };
+
+  LoRa.setPins(ss, rst, dio0);    //setup LoRa transceiver module
+  LoRa.setSyncWord(0xA2);
+  LoRa.setSpreadingFactor(12);
+  LoRa.setSignalBandwidth(62.5E3);
+  //LoRa.begin(433E6)
+  int temp_count1=30;
+
+  while (!LoRa.begin(433920000))     //433E6 - Asia, 866E6 - Europe, 915E6 - North America
+  {
+    Serial.println(".");
+    temp_count1++;
+    if(temp_count1>=30){
+      break;
+    }
+    delay(500);
+  }
+
+}
+
+void loop() {
+  Serial.print("Count:");
+  Serial.println(count);
+  int packetSize = LoRa.parsePacket();    // try to parse packet
+  if (packetSize) 
+  {
+    Serial.print("Packet Size:");
+    Serial.println(packetSize);
+    Serial.print("Received packet '");
+    while (LoRa.available())              // read packet
+    {
+      String LoRaData = LoRa.readString();
+      long num = LoRaData.toInt();
+      //Serial.println(LoRaData); 
+      String netid=LoRaData.substring(0,4);
+      String deviceid=LoRaData.substring(0,6);
+      String devicestatus=LoRaData.substring(6);
+      Serial.print(deviceid);
+      Serial.print("    ");
+      Serial.println(devicestatus);
+      if(netid.equals("1023") && packetSize==8){
+        if(deviceid=="102301" && devicestatus=="00"){
+          cdstatus[0]=0;
+        }
+        if(deviceid=="102301" && devicestatus=="11"){
+          cdstatus[0]=1;
+          cdevice[0]=29;
+        }
+        if(deviceid=="102302" && devicestatus=="00"){
+          cdstatus[1]=0;
+        }
+        if(deviceid=="102302" && devicestatus=="11"){
+          cdstatus[1]=1;
+          cdevice[1]=29;
+        }
+        if(deviceid=="102303" && devicestatus=="00"){
+          cdstatus[2]=0;
+        }
+        if(deviceid=="102303" && devicestatus=="11"){
+          cdstatus[2]=1;
+          cdevice[2]=29;
+        }
+        if(deviceid=="102304" && devicestatus=="00"){
+          cdstatus[3]=1;
+        }
+        if(deviceid=="102304" && devicestatus=="11"){
+          cdstatus[3]=1;
+          cdevice[3]=29;
+        }
+        if(deviceid=="102305" && devicestatus=="00"){
+          cdstatus[4]=0;
+        }
+        if(deviceid=="102305" && devicestatus=="11"){
+          cdstatus[4]=1;
+          cdevice[4]=29;
+        }
+      }
+    }
+    //Serial.print("RSSI :");         // print RSSI of packet
+    //Serial.println(LoRa.packetRssi());
+  }
+
+  if(cdevice[0]>minval){
+    cdevice[0]=cdevice[0]-1;
+  }
+  if(cdevice[1]>minval){
+    cdevice[1]=cdevice[1]-1;
+  }
+  if(cdevice[1]>minval){
+    cdevice[1]=cdevice[2]-1;
+  }
+  if(cdevice[3]>minval){
+    cdevice[3]=cdevice[3]-1;
+  }
+  if(cdevice[4]>minval){
+    cdevice[4]=cdevice[4]-1;
+  }
+
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("C O M1 M2  Motor");
+  lcd.setCursor(0,1);
+  lcd.print(sdevice[0]);
+  lcd.print(" ");
+  lcd.print(sdevice[1]);
+  lcd.print(" ");
+  lcd.print(sdevice[2]);
+  lcd.print("  ");
+  lcd.print(sdevice[3]);
+
+  Serial.print(cdevice[0]);
+  Serial.print(" ");
+  Serial.print(cdevice[1]);
+  Serial.print(" ");
+  Serial.print(cdevice[2]);
+  Serial.print(" ");
+  Serial.print(cdevice[3]);
+  Serial.print(" ");
+  Serial.print(cdevice[4]);
+  Serial.println(" ");
+
+
+  delay(500);
+  count=count+1;
+
+  if(count>=20){
+    int size = sizeof(cdevice);
+    int current_cnt = 0;
+    for (int i = 0; i < 5; i++) {
+        if (cdevice[i] > 0) {
+          current_cnt++;
+        }
+    }
+    Serial.println(" ");
+    Serial.print("Current Device:");
+    Serial.println(current_cnt);
+    count=0;
+  }
+
+ }
